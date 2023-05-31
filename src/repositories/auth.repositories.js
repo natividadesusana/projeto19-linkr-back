@@ -3,15 +3,15 @@ import bcrypt from "bcrypt";
 
 export function signUpRegister(body) {
 
-    const { email, password, username, picture_url } = body;
+    const { email, password, username, pictureUrl } = body;
 
     const hash = bcrypt.hashSync(password, 10);
 
     const result = db.query(
         `
-        INSERT INTO users (email, password, username, picture_url) VALUES ($1, $2, $3, $4);
+        INSERT INTO users (email, password, "userName", "pictureUrl") VALUES ($1, $2, $3, $4);
         `,
-        [email, hash, username, picture_url]
+        [email, hash, username, pictureUrl]
     );
 
     return result;
