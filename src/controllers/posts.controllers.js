@@ -10,15 +10,15 @@ export async function getPosts(req, res) {
 }
 
 export async function createPosts(req, res) {
-    const { url, description } = req.body;
-    try {
-      await createPostsDB(url, description);
-      res.sendStatus(201);
-    } catch (error) {
-      res.status(500).send(error.message);
-    }
+  const { url, description } = req.body;
+  try {
+    await createPostsDB(url, description);
+    res.sendStatus(201);
+  } catch (error) {
+    res.status(500).send(error.message);
   }
-  
+}
 
-  
+
+
 
