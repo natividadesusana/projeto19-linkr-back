@@ -1,6 +1,10 @@
 import { db } from "../database/database.connection.js";
 import bcrypt from "bcrypt";
 
+export function deleteTokenFromDB(token) {
+  return db.query(`DELETE FROM sessions WHERE token = $1;`, [token]);
+}
+
 export function signUpRegister(body) {
 
     const { email, password, username, pictureUrl } = body;

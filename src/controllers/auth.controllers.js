@@ -3,6 +3,18 @@ import { findUserByEmail } from "../services/auth.service.js";
 import bcrypt from "bcrypt";
 import Jwt from "jsonwebtoken";
 import { insertTokenOnDB } from "../services/session.service.js";
+import { deleteTokenFromDB } from "../repositories/auth.repositories.js";
+
+export async function logout(req, res) {
+  const { token } = req.headers.authorization?.replace("Bearer ", "");
+
+  try {
+    await deleteTokenFromDB(token);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+}
 
 export async function signUp(req, res) {
 
