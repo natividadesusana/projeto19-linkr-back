@@ -2,7 +2,7 @@ import { signUpRegister } from "../repositories/auth.repositories.js";
 import { findUserByEmail } from "../services/auth.service.js";
 import bcrypt from "bcrypt";
 import Jwt from "jsonwebtoken";
-import { insertTokenOnDB } from "../services/session.service.js";
+import { updateTokenOnDB } from "../services/session.service.js";
 import { deleteTokenFromDB } from "../repositories/auth.repositories.js";
 
 export async function logout(req, res) {
@@ -17,37 +17,30 @@ export async function logout(req, res) {
 }
 
 export async function signUp(req, res) {
-
-    try {
-        await signUpRegister(req.body);
-        res.sendStatus(201);
-
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-
+  try {
+    await signUpRegister(req.body);
+    res.sendStatus(201);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 }
 
 export async function signIn(req, res) {
-    try {
-        const { password } = req.body
-        const user = await findUserByEmail(req)
+  try {
+    const userPassword = req.body.password
 
-        if (!user || !bcrypt.compareSync(password, user.password)) return res.status(401).send("credenciais inválidas")
+    const {id, userName, email, pictureUrl, password} = await findUserByEmail(req)
 
-        const token = Jwt.sign({ userId: user.id, name: user.name }, process.env.SECRET_KEY, {
-            expiresIn: '1d'
-        })
+    if ( !bcrypt.compareSync(userPassword, password)) return res.status(401).send("credenciais inválidas")
 
-        delete user.createdAt
-        delete user.password
-        delete user.id
+    const token = Jwt.sign({userId: id, name: userName, img: pictureUrl }, process.env.SECRET_KEY, {
+      expiresIn: '1d'
+    })
+    await updateTokenOnDB(token, id)
 
-        await insertTokenOnDB(token, user.id)
-        
-        return res.send({ user, token })
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
+    return res.send({ id, userName, email, pictureUrl, password, token })
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 
 }
