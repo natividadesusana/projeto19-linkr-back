@@ -1,7 +1,18 @@
 import { db } from "../database/database.connection.js";
 
-export function getPostsDB() {
-  return db.query(`SELECT * FROM posts`);
+export async function getPostsDB() {
+  const querystring = `
+    SELECT JSONB_AGG(JSONB_BUILD_OBJECT(
+      'userName', users."userName",
+      'img', users."pictureUrl",
+      'description', posts.description, 
+      'url', posts.url,
+      'likes', posts."likeCount",
+      'trendId', posts."trendId")) AS result
+    FROM users
+    INNER JOIN posts ON posts."userId" = users.id
+  `;
+  return await db.query(querystring);
 }
 
 export function createPostsDB(url, description, userId) {
@@ -9,4 +20,3 @@ export function createPostsDB(url, description, userId) {
 }
 
 
-  
