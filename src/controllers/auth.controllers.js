@@ -29,13 +29,14 @@ export async function signIn(req, res) {
   try {
     const userPassword = req.body.password
 
-    const {id, userName, email, pictureUrl, password} = await findUserByEmail(req)
+    const { id, userName, email, pictureUrl, password } = await findUserByEmail(req)
 
-    if ( !bcrypt.compareSync(userPassword, password)) return res.status(401).send("credenciais inválidas")
+    if (!bcrypt.compareSync(userPassword, password)) return res.status(401).send("credenciais inválidas")
 
-    const token = Jwt.sign({userId: id, name: userName, img: pictureUrl }, process.env.SECRET_KEY, {
+    const token = Jwt.sign({ userId: id, name: userName, img: pictureUrl }, process.env.SECRET_KEY, {
       expiresIn: '1d'
     })
+    
     await updateTokenOnDB(token, id)
 
     return res.send({ id, userName, email, pictureUrl, password, token })
