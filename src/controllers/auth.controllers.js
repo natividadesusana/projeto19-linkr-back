@@ -29,9 +29,13 @@ export async function signIn(req, res) {
   try {
     const userPassword = req.body.password
 
-    const { id, userName, email, pictureUrl, password } = await findUserByEmail(req)
+    const user = await findUserByEmail(req)
 
-    if (!bcrypt.compareSync(userPassword, password)) return res.status(401).send("credenciais inválidas")
+    if (!user || !bcrypt.compareSync(userPassword, user.password)) {
+      return res.status(401).send("Credenciais inválidas")
+    }
+
+    const { id, userName, email, pictureUrl, password } = user
 
     const token = Jwt.sign({ userId: id, name: userName, img: pictureUrl }, process.env.SECRET_KEY, {
       expiresIn: '1d'
@@ -43,5 +47,25 @@ export async function signIn(req, res) {
   } catch (err) {
     res.status(500).send(err.message);
   }
-
 }
+
+// export async function signIn(req, res) {
+//   try {
+//     const userPassword = req.body.password
+
+//     const { id, userName, email, pictureUrl, password } = await findUserByEmail(req)
+
+//     if (!bcrypt.compareSync(userPassword, password)) return res.status(401).send("credenciais inválidas")
+
+//     const token = Jwt.sign({ userId: id, name: userName, img: pictureUrl }, process.env.SECRET_KEY, {
+//       expiresIn: '1d'
+//     })
+    
+//     await updateTokenOnDB(token, id)
+
+//     return res.send({ id, userName, email, pictureUrl, password, token })
+//   } catch (err) {
+//     res.status(500).send(err.message);
+//   }
+
+// }
