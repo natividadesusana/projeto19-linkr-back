@@ -33,16 +33,16 @@ export async function verifyToken(token) {
 }
 
 export async function checkTokenAndReturnUserId(req) {
-    try {
-        const { authorization } = req.headers
-        const token = authorization?.replace("Bearer ", "")
-        const databaseToken = await db.query("SELECT * FROM sessions WHERE token = $1", [token]);
-        const { userId } = databaseToken.rows[0];
-        return userId;
-    }
-    catch (error) {
-        return error
-    }
+  try {
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+    const databaseToken = await db.query(
+      "SELECT * FROM sessions WHERE token = $1",
+      [token]
+    );
+    const { userId } = databaseToken.rows[0];
+    return userId;
+  } catch (error) {
+    return error;
   }
-
-  
+}

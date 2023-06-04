@@ -1,10 +1,10 @@
+import { checkTokenAndReturnUserId } from "../services/session.service.js";
 import {
   createPostsDB,
   getPostsDB,
   deletePostsDB,
   updatePostDB,
 } from "../repositories/posts.repositories.js";
-import { checkTokenAndReturnUserId } from "../services/session.service.js";
 
 export async function getPosts(req, res) {
   try {
