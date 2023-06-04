@@ -1,4 +1,4 @@
-import { db } from "../database/database.connection.js";
+import { db } from '../database/database.connection.js'
 
 export async function getPostsDB() {
   const querystring = `
@@ -14,9 +14,9 @@ export async function getPostsDB() {
     ) AS post
     FROM users
     INNER JOIN posts ON posts."userId" = users.id
-  `;
-  const result = await db.query(querystring);
-  return result.rows.map((row) => row.post);
+  `
+  const result = await db.query(querystring)
+  return result.rows.map(row => row.post)
 }
 
 export async function createPostsDB(
@@ -29,21 +29,21 @@ export async function createPostsDB(
   const result = await db.query(
     `INSERT INTO posts (url, description, "userId", "trendId", "likeCount") VALUES ($1, $2, $3, $4, $5) RETURNING *`,
     [url, description, userId, trendId, likeCount]
-  );
+  )
 
-  return result.rows[0];
+  return result.rows[0]
 }
 
 export function updatePostDB(id, url, description, userId) {
   return db.query(
     `UPDATE posts SET url = $1, description = $2 WHERE id = $3 AND "userId" = $4`,
     [url, description, id, userId]
-  );
+  )
 }
 
 export function deletePostsDB(id, userId) {
   return db.query(`DELETE FROM posts WHERE id = $1 AND "userId" = $2`, [
     id,
-    userId,
-  ]);
+    userId
+  ])
 }
