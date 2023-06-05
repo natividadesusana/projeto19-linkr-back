@@ -1,6 +1,5 @@
 import urlMetadata from 'url-metadata'
 import { db } from '../database/database.connection.js'
-
 export async function getPostsDB() {
   const querystring = `
     SELECT JSONB_BUILD_OBJECT(
@@ -15,10 +14,10 @@ export async function getPostsDB() {
     ) AS post
     FROM users
     INNER JOIN posts ON posts."userId" = users.id
-  `
+  `;
 
-  const result = await db.query(querystring)
-  const list = result.rows
+  const result = await db.query(querystring);
+  const list = result.rows;
 
   const metadataPromises = list.map(async (obj) => {
     try {
@@ -28,21 +27,17 @@ export async function getPostsDB() {
           'From': 'bar@bar.com'
         }
       });
-      return { descr: metadata.description, img: metadata.image };
+      obj.post.urlDescr = metadata.description || '';
+      obj.post.urlImg = metadata.image || '';
     } catch (error) {
-      return 'Descrição indisponível';
+      obj.post.urlDescr = 'Descrição indisponível';
+      obj.post.urlImg = '';
     }
   });
 
-  const descriptions = await Promise.all(metadataPromises);
+  await Promise.all(metadataPromises);
 
-  list.forEach((obj, index) => {
-
-    obj.post.urlDesc = descriptions[index]
-
-
-  })
-  return list
+  return list;
 }
 
 export async function createPostsDB(
