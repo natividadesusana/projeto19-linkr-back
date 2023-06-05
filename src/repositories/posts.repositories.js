@@ -37,7 +37,9 @@ export async function getPostsDB() {
 
   await Promise.all(metadataPromises);
 
-  return list;
+  return list.map((post) => {
+    return post.post
+  })
 }
 
 export async function createPostsDB(
