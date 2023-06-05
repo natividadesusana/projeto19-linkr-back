@@ -1,3 +1,4 @@
+import urlMetadata from 'url-metadata'
 import { db } from '../database/database.connection.js'
 
 export async function getPostsDB() {
@@ -15,8 +16,33 @@ export async function getPostsDB() {
     FROM users
     INNER JOIN posts ON posts."userId" = users.id
   `
+
   const result = await db.query(querystring)
-  return result.rows.map(row => row.post)
+  const list = result.rows
+
+  const metadataPromises = list.map(async (obj) => {
+    try {
+      const metadata = await urlMetadata(obj.post.url, {
+        requestHeaders: {
+          'User-Agent': 'foo',
+          'From': 'bar@bar.com'
+        }
+      });
+      return { descr: metadata.description, img: metadata.image };
+    } catch (error) {
+      return 'Descrição indisponível';
+    }
+  });
+
+  const descriptions = await Promise.all(metadataPromises);
+
+  list.forEach((obj, index) => {
+
+    obj.post.urlDesc = descriptions[index]
+
+
+  })
+  return list
 }
 
 export async function createPostsDB(
