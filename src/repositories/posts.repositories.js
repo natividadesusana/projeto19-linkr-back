@@ -1,6 +1,26 @@
 import { db } from '../database/database.connection.js'
 import urlMetadata from 'url-metadata'
 
+export async function getLikedPost(userId, postId) {
+  return db.query('SELECT * FROM posts WHERE "userId" = $1 AND id = $2;', [
+    userId,
+    postId
+  ])
+}
+
+export async function updateUnliked(postId, increment) {
+  return db.query(
+    'UPDATE posts SET "likeCount" = "likeCount" - $1 WHERE id = $2;',
+    [increment, postId]
+  )
+}
+
+export async function updateLiked(postId, increment) {
+  return db.query(
+    'UPDATE posts SET "likeCount" = "likeCount" + $1 WHERE id = $2;',
+    [increment, postId]
+  )
+}
 export async function getPostsDB() {
   const querystring = `
     SELECT JSONB_BUILD_OBJECT(
