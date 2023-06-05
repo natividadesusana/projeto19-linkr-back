@@ -27,11 +27,13 @@ export async function getPostsDB() {
           'From': 'bar@bar.com'
         }
       });
-      obj.post.urlDescr = metadata.description || '';
-      obj.post.urlImg = metadata.image || '';
+      obj.post.urlDescr = metadata.description ;
+      obj.post.urlImg = metadata.image ;
+      obj.post.urlTitle = metadata.title;
     } catch (error) {
       obj.post.urlDescr = 'Descrição indisponível';
       obj.post.urlImg = '';
+      obj.post.urlTitle = '';
     }
   });
 
