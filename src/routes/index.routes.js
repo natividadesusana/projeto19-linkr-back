@@ -1,8 +1,8 @@
-import { Router } from "express";
-import postsRouter from "./posts.routes.js";
-import authRouter from "./auth.routes.js";
-import hashtagsRouter from "./hashtags.routes.js";
+import { Router } from 'express'
+import postsRouter from './posts.routes.js'
+import authRouter from './auth.routes.js'
 import userRouter from './users.routes.js'
+import hashtagsRouter from './hashtags.routes.js'
 
 const router = Router()
 

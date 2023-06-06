@@ -1,14 +1,24 @@
-import { Router } from "express";
-import { getPosts, getPostsHashtags, createPosts, deletePosts, updatePosts } from "../controllers/posts.controllers.js";
-import {validateSchema} from "../middlewares/validateSchema.middleware.js";
-import { postsSchema } from "../schemas/posts.schemas.js";
+import { Router } from 'express'
+import {
+  getPosts,
+  getPostsHashtags,
+  createPosts,
+  deletePosts,
+  updatePosts,
+  postLike,
+  postUnlike
+} from '../controllers/posts.controllers.js'
+import { validateSchema } from '../middlewares/validateSchema.middleware.js'
+import { postsSchema } from '../schemas/posts.schemas.js'
 
-const postsRouter = Router();
+const postsRouter = Router()
 
-postsRouter.get("/posts", getPosts);
+postsRouter.get('/posts', getPosts)
 postsRouter.get("/posts/hashtags", getPostsHashtags);
-postsRouter.post("/posts", validateSchema(postsSchema), createPosts);
-postsRouter.put("/posts/:id", updatePosts);
-postsRouter.delete("/posts/:id", deletePosts);
+postsRouter.post('/posts', validateSchema(postsSchema), createPosts)
+postsRouter.post('/posts/like', postLike)
+postsRouter.post('/posts/unlike', postUnlike)
+postsRouter.put('/posts/:id', updatePosts)
+postsRouter.delete('/posts/:id', deletePosts)
 
-export default postsRouter;
+export default postsRouter
