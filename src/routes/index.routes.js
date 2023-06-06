@@ -9,6 +9,6 @@ const router = Router()
 router.use(postsRouter);
 router.use(authRouter);
 router.use(hashtagsRouter);
-router.use(userRouter)
+router.use(userRouter);
 
 export default router

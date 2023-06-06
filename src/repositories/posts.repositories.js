@@ -70,3 +70,7 @@ export function deletePostsDB(id, userId) {
     userId
   ])
 }
+
+export function getPostsHashtagsDB() {
+  return db.query(`SELECT description as hashtags FROM posts WHERE description LIKE '%#%'`)
+}
