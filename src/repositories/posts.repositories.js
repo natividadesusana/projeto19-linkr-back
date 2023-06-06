@@ -32,6 +32,7 @@ export async function getPostsDB() {
     } catch (error) {
       return 'Descrição indisponível';
     }
+    return obj.post
   });
 
   const descriptions = await Promise.all(metadataPromises);
