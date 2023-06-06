@@ -6,7 +6,8 @@ import {
   updatePostDB,
   updateUnliked,
   getLikedPost,
-  updateLiked
+  updateLiked,
+  countRecentPosts
 } from '../repositories/posts.repositories.js'
 
 export async function postLike(req, res) {
@@ -88,4 +89,16 @@ export async function deletePosts(req, res) {
   } catch (error) {
     res.status(500).send(error.message)
   }
+}
+
+export async function countNewPosts(req, res) {
+  const { lastUpdate } = req.query
+  console.log(lastUpdate)
+  try {
+    const newPosts = await countRecentPosts(lastUpdate)
+    res.status(200).send(newPosts.rows[0])
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+
 }

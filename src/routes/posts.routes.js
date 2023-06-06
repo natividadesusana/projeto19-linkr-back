@@ -5,7 +5,8 @@ import {
   deletePosts,
   updatePosts,
   postLike,
-  postUnlike
+  postUnlike,
+  countNewPosts
 } from '../controllers/posts.controllers.js'
 import { validateSchema } from '../middlewares/validateSchema.middleware.js'
 import { postsSchema } from '../schemas/posts.schemas.js'
@@ -18,5 +19,6 @@ postsRouter.post('/posts/like', postLike)
 postsRouter.post('/posts/unlike', postUnlike)
 postsRouter.put('/posts/:id', updatePosts)
 postsRouter.delete('/posts/:id', deletePosts)
+postsRouter.get('/posts/new-posts', countNewPosts)
 
 export default postsRouter
