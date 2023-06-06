@@ -1,6 +1,26 @@
-import urlMetadata from 'url-metadata'
 import { db } from '../database/database.connection.js'
+import urlMetadata from 'url-metadata'
 
+export async function getLikedPost(userId, postId) {
+  return db.query('SELECT * FROM posts WHERE "userId" = $1 AND id = $2;', [
+    userId,
+    postId
+  ])
+}
+
+export async function updateUnliked(postId, increment) {
+  return db.query(
+    'UPDATE posts SET "likeCount" = "likeCount" - $1 WHERE id = $2;',
+    [increment, postId]
+  )
+}
+
+export async function updateLiked(postId, increment) {
+  return db.query(
+    'UPDATE posts SET "likeCount" = "likeCount" + $1 WHERE id = $2;',
+    [increment, postId]
+  )
+}
 export async function getPostsDB() {
   const querystring = `
     SELECT JSONB_BUILD_OBJECT(
@@ -20,30 +40,29 @@ export async function getPostsDB() {
   const result = await db.query(querystring)
   const list = result.rows
 
-  const metadataPromises = list.map(async (obj) => {
+  const metadataPromises = list.map(async obj => {
     try {
       const metadata = await urlMetadata(obj.post.url, {
         requestHeaders: {
           'User-Agent': 'foo',
-          'From': 'bar@bar.com'
+          From: 'bar@bar.com'
         }
-      });
-      return { descr: metadata.description, img: metadata.image };
+      })
+      obj.post.urlDescr = metadata.description || ''
+      obj.post.urlImg = metadata.image || ''
+      obj.post.urlTitle = metadata.image || ''
     } catch (error) {
-      return 'Descrição indisponível';
+      obj.post.urlDescr = 'Descrição indisponível'
+      obj.post.urlImg = ''
     }
     return obj.post
   });
 
-  const descriptions = await Promise.all(metadataPromises);
+  await Promise.all(metadataPromises)
 
-  list.forEach((obj, index) => {
-
-    obj.post.urlDesc = descriptions[index]
-
-
+  return list.map(post => {
+    return post.post
   })
-  return list
 }
 
 export async function createPostsDB(

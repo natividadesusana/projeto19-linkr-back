@@ -3,9 +3,46 @@ import {
   createPostsDB,
   getPostsDB,
   deletePostsDB,
-  updatePostDB
+  updatePostDB,
+  updateUnliked,
+  getLikedPost,
+  updateLiked
 } from '../repositories/posts.repositories.js'
 
+export async function postLike(req, res) {
+  const { id, userId } = req.body
+
+  try {
+    const { rows } = await getLikedPost(userId, id)
+    const like = rows[0].likeCount
+
+    if (like === 0) {
+      await updateLiked(id, 1)
+    }
+    if (like > 0) await updateLiked(id, 1)
+
+    res.sendStatus(200)
+  } catch (err) {
+    res.status(500).send(err.message)
+  }
+}
+
+export async function postUnlike(req, res) {
+  const { id, userId } = req.body
+
+  try {
+    const { rows } = await getLikedPost(userId, id)
+    const like = rows[0].likeCount
+
+    if (like > 0) {
+      await updateUnliked(id, 1)
+    }
+
+    res.sendStatus(200)
+  } catch (err) {
+    res.status(500).send(err.message)
+  }
+}
 export async function getPosts(req, res) {
   try {
     const posts = await getPostsDB()
