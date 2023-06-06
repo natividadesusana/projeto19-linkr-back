@@ -92,3 +92,14 @@ export function deletePostsDB(id, userId) {
     userId
   ])
 }
+
+export function countRecentPosts(lastUpdate) {
+  return db.query(
+    `
+    SELECT COUNT(*) AS "countPosts"
+    FROM posts 
+    WHERE "createdAt" >= $1
+    `,
+    [lastUpdate]
+  )
+}
