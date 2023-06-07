@@ -85,17 +85,7 @@ export async function getPosts(req, res) {
           urlTitle: post.urlTitle
         }))
       }
-    // "id": 110,
-    // "img": "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/iKIWgaiJUtss/v2/1200x900.jpg",
-    // "url": "https://www.driven.com.br/",
-    // "likes": 0,
-    // "userId": 44,
-    // "trendId": null,
-    // "userName": "jaumneves",
-    // "description": "Essa escola de programação é excelente.",
-    // "urlDescr": "O Curso de Programação Driven te leva do zero ao full stack em 9 meses. Pague só depois de formado e quando estiver trabalhando - 100% dos nossos alunos estão.",
-    // "urlImg": "",
-    // "urlTitle": ""
+
       )
   } catch (error) {
     res.status(500).send(error.message)
