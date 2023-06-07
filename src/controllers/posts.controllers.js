@@ -57,7 +57,7 @@ export async function getPosts(req, res) {
     const currentUrl = req.route.path
 
     const next = offset + limit
-    const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset${offset}` : null
+    const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null
 
     const previous = offset - limit < 0 ? null : offset - limit
     const previousUrl = previous != null ? `${currentUrl}?limit=${limit}&offset=${previous}` :null
