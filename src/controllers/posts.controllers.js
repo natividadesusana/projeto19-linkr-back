@@ -2,12 +2,15 @@ import { checkTokenAndReturnUserId } from '../services/session.service.js'
 import {
   createPostsDB,
   getPostsDB,
+  getPostsHashtagsDB,
   deletePostsDB,
   updatePostDB,
   updateUnliked,
   getLikedPost,
-  updateLiked
+  updateLiked,
+  countRecentPosts
 } from '../repositories/posts.repositories.js'
+import { countPosts } from '../services/posts.service.js'
 
 export async function postLike(req, res) {
   const { id, userId } = req.body
@@ -45,7 +48,6 @@ export async function postUnlike(req, res) {
 }
 export async function getPosts(req, res) {
   try {
-    res.status(200).send(posts)
     let { limit, offset } = req.query
 
     if (!limit) limit = 5
@@ -55,7 +57,7 @@ export async function getPosts(req, res) {
     const currentUrl = req.route.path
 
     const next = offset + limit
-    const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null
+    const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset${offset}` : null
 
     const previous = offset - limit < 0 ? null : offset - limit
     const previousUrl = previous != null ? `${currentUrl}?limit=${limit}&offset=${previous}` :null
@@ -83,6 +85,17 @@ export async function getPosts(req, res) {
           urlTitle: post.urlTitle
         }))
       }
+    // "id": 110,
+    // "img": "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/iKIWgaiJUtss/v2/1200x900.jpg",
+    // "url": "https://www.driven.com.br/",
+    // "likes": 0,
+    // "userId": 44,
+    // "trendId": null,
+    // "userName": "jaumneves",
+    // "description": "Essa escola de programação é excelente.",
+    // "urlDescr": "O Curso de Programação Driven te leva do zero ao full stack em 9 meses. Pague só depois de formado e quando estiver trabalhando - 100% dos nossos alunos estão.",
+    // "urlImg": "",
+    // "urlTitle": ""
       )
   } catch (error) {
     res.status(500).send(error.message)
@@ -125,4 +138,34 @@ export async function deletePosts(req, res) {
   } catch (error) {
     res.status(500).send(error.message)
   }
+}
+
+export async function getPostsHashtags(req, res) {
+  try {
+    const hashtags = await getPostsHashtagsDB();
+    const parsedHashtags = hashtags.rows.reduce((acc, item) => {
+     const match = item.hashtags.match(/#\S+/g);
+
+      if (match) {
+        const filteredHashtags = match.map((tag) => tag.replace("#", ""));
+        return [...new Set(acc.concat(filteredHashtags))]; 
+      }
+      return acc;
+    }, []);
+    res.status(200).send(parsedHashtags);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
+export async function countNewPosts(req, res) {
+  const { lastUpdate } = req.query
+  console.log(lastUpdate)
+  try {
+    const newPosts = await countRecentPosts(lastUpdate)
+    res.status(200).send(newPosts.rows[0])
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+
 }
