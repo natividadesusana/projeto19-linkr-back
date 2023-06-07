@@ -45,8 +45,45 @@ export async function postUnlike(req, res) {
 }
 export async function getPosts(req, res) {
   try {
-    const posts = await getPostsDB()
     res.status(200).send(posts)
+    let { limit, offset } = req.query
+
+    if (!limit) limit = 5
+    if (!offset) offset = 0
+
+    const total = await countPosts()
+    const currentUrl = req.route.path
+
+    const next = offset + limit
+    const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null
+
+    const previous = offset - limit < 0 ? null : offset - limit
+    const previousUrl = previous != null ? `${currentUrl}?limit=${limit}&offset=${previous}` :null
+
+    const posts = await getPostsDB(limit, offset)
+    res.status(200).send(
+      {
+        previousUrl,
+        nextUrl,
+        limit,
+        offset,
+        total,
+
+        results: posts.map((post) => ({
+          id: post.id,
+          img: post.img,
+          url: post.url,
+          likes: post.url,
+          userId: post.userId,
+          trendId: post.trendId,
+          userName: post.userName,
+          description: post.description,
+          urlDescr: post.urlDescr,
+          urlImg: post.urlImg,
+          urlTitle: post.urlTitle
+        }))
+      }
+      )
   } catch (error) {
     res.status(500).send(error.message)
   }
