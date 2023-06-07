@@ -10,3 +10,23 @@ export async function getUserName(userName) {
   )
   return result.rows
 }
+
+export async function getUserFollows(userId, id) {
+
+  return db.query(
+    `
+    SELECT * FROM followers
+    WHERE "userId" = $1 AND "followedId" = $2
+    `, [userId, id])
+}
+
+export async function postNewFollowed(userId, id) {
+  return db.query(
+    `
+    INSERT INTO followers ("userId", "followedId") VALUES ($1, $2)
+    `, [userId, id])
+}
+
+export async function deleteFollower(userId, id) {
+  return db.query(`DELETE FROM followers WHERE "userId" = $1 AND "followedId" = $2`, [userId, id])
+}
