@@ -1,6 +1,34 @@
 import { db } from "../database/database.connection.js";
 import urlMetadata from "url-metadata";
 
+/* export async function getLikerByPostId(postId) {
+  try {
+    const query = `
+      SELECT ARRAY_AGG(DISTINCT users."userName") AS likers
+      FROM likes
+      INNER JOIN users ON likes."userId" = users.id
+      WHERE likes."postId" = $1
+      GROUP BY likes."postId"
+    `;
+    const values = [postId];
+
+    const result = await db.query(query, values);
+    return result.rows[0]?.likers || [];
+  } catch (error) {
+    console.error(error);
+  }
+} */
+
+export async function insertLike(userId, postId) {
+
+  return db.query(`INSERT INTO likes ("userId", "postId") VALUES ($1, $2)`, [userId, postId])
+
+}
+
+export async function removeLike(userId, postId) {
+  return db.query(`DELETE FROM likes WHERE "userId" = $1 AND "postId" = $2`, [userId, postId])
+}
+
 export async function getLikedPost(userId, postId) {
   return db.query('SELECT * FROM posts WHERE "userId" = $1 AND id = $2;', [
     userId,

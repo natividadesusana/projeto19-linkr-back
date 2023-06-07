@@ -6,41 +6,50 @@ import {
   deletePostsDB,
   updatePostDB,
   updateUnliked,
-  getLikedPost,
   updateLiked,
-  countRecentPosts
+  countRecentPosts,
+  insertLike,
+  removeLike,
+  getLikedPost,
+  //getLikerByPostId
 } from '../repositories/posts.repositories.js'
 
+
+/* export async function getLiker(req, res) {
+  const { postId } = req.params;
+  try {
+    const result = await getLikerByPostId(postId)
+    return res.status(200).send(result)
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+} */
 export async function postLike(req, res) {
   const { id, userId } = req.body
 
   try {
-    const { rows } = await getLikedPost(userId, id)
-    const like = rows[0].likeCount
-
-    if (like === 0) {
+    const existing = await getLikedPost(userId, id)
+    
+    if (existing.fields.length > 0) {
       await updateLiked(id, 1)
+      await insertLike(userId, id)
     }
-    if (like > 0) await updateLiked(id, 1)
-
     res.sendStatus(200)
+
   } catch (err) {
     res.status(500).send(err.message)
   }
-}
 
+}
 export async function postUnlike(req, res) {
   const { id, userId } = req.body
 
   try {
-    const { rows } = await getLikedPost(userId, id)
-    const like = rows[0].likeCount
-
-    if (like > 0) {
-      await updateUnliked(id, 1)
-    }
+    await updateUnliked(id, 1)
+    await removeLike(userId, id)
 
     res.sendStatus(200)
+
   } catch (err) {
     res.status(500).send(err.message)
   }
@@ -96,11 +105,11 @@ export async function getPostsHashtags(req, res) {
   try {
     const hashtags = await getPostsHashtagsDB();
     const parsedHashtags = hashtags.rows.reduce((acc, item) => {
-     const match = item.hashtags.match(/#\S+/g);
+      const match = item.hashtags.match(/#\S+/g);
 
       if (match) {
         const filteredHashtags = match.map((tag) => tag.replace("#", ""));
-        return [...new Set(acc.concat(filteredHashtags))]; 
+        return [...new Set(acc.concat(filteredHashtags))];
       }
       return acc;
     }, []);
@@ -112,7 +121,7 @@ export async function getPostsHashtags(req, res) {
 
 export async function countNewPosts(req, res) {
   const { lastUpdate } = req.query
-  console.log(lastUpdate)
+  
   try {
     const newPosts = await countRecentPosts(lastUpdate)
     res.status(200).send(newPosts.rows[0])
