@@ -2,11 +2,13 @@ import { checkTokenAndReturnUserId } from '../services/session.service.js'
 import {
   createPostsDB,
   getPostsDB,
+  getPostsHashtagsDB,
   deletePostsDB,
   updatePostDB,
   updateUnliked,
   getLikedPost,
-  updateLiked
+  updateLiked,
+  countRecentPosts
 } from '../repositories/posts.repositories.js'
 import { countPosts } from '../services/posts.service.js'
 
@@ -136,4 +138,34 @@ export async function deletePosts(req, res) {
   } catch (error) {
     res.status(500).send(error.message)
   }
+}
+
+export async function getPostsHashtags(req, res) {
+  try {
+    const hashtags = await getPostsHashtagsDB();
+    const parsedHashtags = hashtags.rows.reduce((acc, item) => {
+     const match = item.hashtags.match(/#\S+/g);
+
+      if (match) {
+        const filteredHashtags = match.map((tag) => tag.replace("#", ""));
+        return [...new Set(acc.concat(filteredHashtags))]; 
+      }
+      return acc;
+    }, []);
+    res.status(200).send(parsedHashtags);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
+export async function countNewPosts(req, res) {
+  const { lastUpdate } = req.query
+  console.log(lastUpdate)
+  try {
+    const newPosts = await countRecentPosts(lastUpdate)
+    res.status(200).send(newPosts.rows[0])
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+
 }
