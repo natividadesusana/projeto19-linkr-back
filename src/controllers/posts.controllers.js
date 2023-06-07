@@ -2,6 +2,7 @@ import { checkTokenAndReturnUserId } from '../services/session.service.js'
 import {
   createPostsDB,
   getPostsDB,
+  getPostsHashtagsDB,
   deletePostsDB,
   updatePostDB,
   updateUnliked,
@@ -88,6 +89,24 @@ export async function deletePosts(req, res) {
     res.sendStatus(204)
   } catch (error) {
     res.status(500).send(error.message)
+  }
+}
+
+export async function getPostsHashtags(req, res) {
+  try {
+    const hashtags = await getPostsHashtagsDB();
+    const parsedHashtags = hashtags.rows.reduce((acc, item) => {
+     const match = item.hashtags.match(/#\S+/g);
+
+      if (match) {
+        const filteredHashtags = match.map((tag) => tag.replace("#", ""));
+        return [...new Set(acc.concat(filteredHashtags))]; 
+      }
+      return acc;
+    }, []);
+    res.status(200).send(parsedHashtags);
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 }
 

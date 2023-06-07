@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import {
   getPosts,
+  getPostsHashtags,
   createPosts,
   deletePosts,
   updatePosts,
@@ -14,6 +15,7 @@ import { postsSchema } from '../schemas/posts.schemas.js'
 const postsRouter = Router()
 
 postsRouter.get('/posts', getPosts)
+postsRouter.get("/posts/hashtags", getPostsHashtags);
 postsRouter.post('/posts', validateSchema(postsSchema), createPosts)
 postsRouter.post('/posts/like', postLike)
 postsRouter.post('/posts/unlike', postUnlike)

@@ -1,25 +1,25 @@
-import { db } from '../database/database.connection.js'
-import urlMetadata from 'url-metadata'
+import { db } from "../database/database.connection.js";
+import urlMetadata from "url-metadata";
 
 export async function getLikedPost(userId, postId) {
   return db.query('SELECT * FROM posts WHERE "userId" = $1 AND id = $2;', [
     userId,
-    postId
-  ])
+    postId,
+  ]);
 }
 
 export async function updateUnliked(postId, increment) {
   return db.query(
     'UPDATE posts SET "likeCount" = "likeCount" - $1 WHERE id = $2;',
     [increment, postId]
-  )
+  );
 }
 
 export async function updateLiked(postId, increment) {
   return db.query(
     'UPDATE posts SET "likeCount" = "likeCount" + $1 WHERE id = $2;',
     [increment, postId]
-  )
+  );
 }
 export async function getPostsDB() {
   const querystring = `
@@ -35,34 +35,34 @@ export async function getPostsDB() {
     ) AS post
     FROM users
     INNER JOIN posts ON posts."userId" = users.id
-  `
+  `;
 
-  const result = await db.query(querystring)
-  const list = result.rows
+  const result = await db.query(querystring);
+  const list = result.rows;
 
-  const metadataPromises = list.map(async obj => {
+  const metadataPromises = list.map(async (obj) => {
     try {
       const metadata = await urlMetadata(obj.post.url, {
         requestHeaders: {
-          'User-Agent': 'foo',
-          From: 'bar@bar.com'
-        }
-      })
-      obj.post.urlDescr = metadata.description || ''
-      obj.post.urlImg = metadata.image || ''
-      obj.post.urlTitle = metadata.image || ''
+          "User-Agent": "foo",
+          From: "bar@bar.com",
+        },
+      });
+      obj.post.urlDescr = metadata.description || "";
+      obj.post.urlImg = metadata.image || "";
+      obj.post.urlTitle = metadata.image || "";
     } catch (error) {
-      obj.post.urlDescr = 'Descrição indisponível'
-      obj.post.urlImg = ''
+      obj.post.urlDescr = "Descrição indisponível";
+      obj.post.urlImg = "";
     }
-    return obj.post
+    return obj.post;
   });
 
-  await Promise.all(metadataPromises)
+  await Promise.all(metadataPromises);
 
-  return list.map(post => {
-    return post.post
-  })
+  return list.map((post) => {
+    return post.post;
+  });
 }
 
 export async function createPostsDB(
@@ -75,25 +75,30 @@ export async function createPostsDB(
   const result = await db.query(
     `INSERT INTO posts (url, description, "userId", "trendId", "likeCount") VALUES ($1, $2, $3, $4, $5) RETURNING *`,
     [url, description, userId, trendId, likeCount]
-  )
+  );
 
-  return result.rows[0]
+  return result.rows[0];
 }
 
 export function updatePostDB(id, url, description, userId) {
   return db.query(
     `UPDATE posts SET url = $1, description = $2 WHERE id = $3 AND "userId" = $4`,
     [url, description, id, userId]
-  )
+  );
 }
 
 export function deletePostsDB(id, userId) {
   return db.query(`DELETE FROM posts WHERE id = $1 AND "userId" = $2`, [
     id,
-    userId
-  ])
+    userId,
+  ]);
 }
 
+export function getPostsHashtagsDB() {
+  return db.query(
+    `SELECT description as hashtags FROM posts WHERE description LIKE '%#%'`
+  );
+}
 export function countRecentPosts(lastUpdate) {
   return db.query(
     `
@@ -102,5 +107,5 @@ export function countRecentPosts(lastUpdate) {
     WHERE "createdAt" >= $1
     `,
     [lastUpdate]
-  )
+  );
 }
