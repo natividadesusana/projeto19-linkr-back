@@ -21,7 +21,11 @@ export async function updateLiked(postId, increment) {
     [increment, postId]
   );
 }
-export async function getPostsDB() {
+
+
+
+export async function getPostsDB(limit, offset) {
+  
   const querystring = `
     SELECT JSONB_BUILD_OBJECT(
       'userName', users."userName",
@@ -35,7 +39,10 @@ export async function getPostsDB() {
     ) AS post
     FROM users
     INNER JOIN posts ON posts."userId" = users.id
-  `;
+    LIMIT ${limit}
+    OFFSET ${offset}
+  `
+
 
   const result = await db.query(querystring);
   const list = result.rows;
@@ -64,6 +71,14 @@ export async function getPostsDB() {
     return post.post;
   });
 }
+
+
+
+
+
+
+
+
 
 export async function createPostsDB(
   url,

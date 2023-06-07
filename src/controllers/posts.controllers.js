@@ -10,6 +10,7 @@ import {
   updateLiked,
   countRecentPosts
 } from '../repositories/posts.repositories.js'
+import { countPosts } from '../services/posts.service.js'
 
 export async function postLike(req, res) {
   const { id, userId } = req.body
@@ -47,8 +48,55 @@ export async function postUnlike(req, res) {
 }
 export async function getPosts(req, res) {
   try {
-    const posts = await getPostsDB()
-    res.status(200).send(posts)
+    let { limit, offset } = req.query
+
+    if (!limit) limit = 5
+    if (!offset) offset = 0
+
+    const total = await countPosts()
+    const currentUrl = req.route.path
+
+    const next = offset + limit
+    const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset${offset}` : null
+
+    const previous = offset - limit < 0 ? null : offset - limit
+    const previousUrl = previous != null ? `${currentUrl}?limit=${limit}&offset=${previous}` :null
+
+    const posts = await getPostsDB(limit, offset)
+    res.status(200).send(
+      {
+        previousUrl,
+        nextUrl,
+        limit,
+        offset,
+        total,
+
+        results: posts.map((post) => ({
+          id: post.id,
+          img: post.img,
+          url: post.url,
+          likes: post.url,
+          userId: post.userId,
+          trendId: post.trendId,
+          userName: post.userName,
+          description: post.description,
+          urlDescr: post.urlDescr,
+          urlImg: post.urlImg,
+          urlTitle: post.urlTitle
+        }))
+      }
+    // "id": 110,
+    // "img": "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/iKIWgaiJUtss/v2/1200x900.jpg",
+    // "url": "https://www.driven.com.br/",
+    // "likes": 0,
+    // "userId": 44,
+    // "trendId": null,
+    // "userName": "jaumneves",
+    // "description": "Essa escola de programação é excelente.",
+    // "urlDescr": "O Curso de Programação Driven te leva do zero ao full stack em 9 meses. Pague só depois de formado e quando estiver trabalhando - 100% dos nossos alunos estão.",
+    // "urlImg": "",
+    // "urlTitle": ""
+      )
   } catch (error) {
     res.status(500).send(error.message)
   }
