@@ -126,9 +126,9 @@ export async function countNewPosts(req, res) {
 
 export async function postRepost(req, res) {
   const { id } = req.params;
-  const { userId } = req.body;
 
   try {
+    const userId = await checkTokenAndReturnUserId(req)
     await postRepostDB(id, userId);
     res.sendStatus(200);
   } catch (err) {

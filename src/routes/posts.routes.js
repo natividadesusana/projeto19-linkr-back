@@ -21,7 +21,7 @@ postsRouter.get("/posts/hashtags", getPostsHashtags);
 postsRouter.post('/posts', validateSchema(postsSchema), createPosts)
 postsRouter.post('/posts/like', postLike)
 postsRouter.post('/posts/unlike', postUnlike)
-postsRouter.post('/posts/repost/:id', postRepost)
+postsRouter.post('/posts/:id/repost', postRepost)
 postsRouter.get('/posts/repost', getRepost)
 postsRouter.put('/posts/:id', updatePosts)
 postsRouter.delete('/posts/:id', deletePosts)
