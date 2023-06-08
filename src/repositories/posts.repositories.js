@@ -124,3 +124,16 @@ export function countRecentPosts(lastUpdate) {
     [lastUpdate]
   );
 }
+
+export async function postRepostDB(postId, userId) {
+  const result = await db.query(
+    `INSERT INTO shares ("postId", "userId") VALUES ($1, $2) RETURNING *`,
+    [postId, userId]
+  );
+
+  return result.rows[0];
+}
+
+export async function getRepostDB() {
+  return db.query('SELECT "postId", COUNT(*) AS reposts FROM shares GROUP BY "postId"');
+}
