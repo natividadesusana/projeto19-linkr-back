@@ -8,7 +8,9 @@ import {
   updateUnliked,
   getLikedPost,
   updateLiked,
-  countRecentPosts
+  countRecentPosts,
+  postRepostDB,
+  getRepostDB
 } from '../repositories/posts.repositories.js'
 
 export async function postLike(req, res) {
@@ -121,3 +123,26 @@ export async function countNewPosts(req, res) {
   }
 
 }
+
+export async function postRepost(req, res) {
+  const { id } = req.params;
+  const { userId } = req.body;
+
+  try {
+    await postRepostDB(id, userId);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+}
+
+
+export async function getRepost(req, res) {
+  try {
+    const repost = await getRepostDB();
+    res.status(200).send(repost.rows);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
