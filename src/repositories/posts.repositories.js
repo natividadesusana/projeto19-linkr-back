@@ -22,10 +22,7 @@ export async function updateLiked(postId, increment) {
   );
 }
 
-
-
 export async function getPostsDB(limit, offset) {
-  
   const querystring = `
     SELECT JSONB_BUILD_OBJECT(
       'userName', users."userName",
@@ -41,8 +38,7 @@ export async function getPostsDB(limit, offset) {
     INNER JOIN posts ON posts."userId" = users.id
     LIMIT ${limit}
     OFFSET ${offset}
-  `
-
+  `;
 
   const result = await db.query(querystring);
   const list = result.rows;
@@ -57,7 +53,8 @@ export async function getPostsDB(limit, offset) {
       });
       obj.post.urlDescr = metadata.description || "";
       obj.post.urlImg = metadata.image || "";
-      obj.post.urlTitle = metadata.image || "";
+      obj.post.urlTitle = metadata.title || "";
+
     } catch (error) {
       obj.post.urlDescr = "Descrição indisponível";
       obj.post.urlImg = "";
@@ -71,14 +68,6 @@ export async function getPostsDB(limit, offset) {
     return post.post;
   });
 }
-
-
-
-
-
-
-
-
 
 export async function createPostsDB(
   url,
@@ -135,5 +124,7 @@ export async function postRepostDB(postId, userId) {
 }
 
 export async function getRepostDB() {
-  return db.query('SELECT "postId", COUNT(*) AS reposts FROM shares GROUP BY "postId"');
+  return db.query(
+    'SELECT "postId", COUNT(*) AS reposts FROM shares GROUP BY "postId"'
+  );
 }
