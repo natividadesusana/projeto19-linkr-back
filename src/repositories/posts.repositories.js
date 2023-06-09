@@ -1,6 +1,5 @@
 import axios from "axios";
 import { db } from "../database/database.connection.js";
-import urlMetadata from "url-metadata";
 
 export async function getLikedPost(userId, postId) {
   return db.query('SELECT * FROM posts WHERE "userId" = $1 AND id = $2;', [
