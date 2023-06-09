@@ -49,7 +49,6 @@ export async function getPostsDB(limit, offset) {
         .then(res => {
 
           const { title, description, images } = res.data
-          console.log(res.data)
           obj.post.urlTitle = title || ''
           obj.post.urlDescr = description || ''
           obj.post.urlImg = images[0] || ''
