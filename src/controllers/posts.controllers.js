@@ -54,7 +54,7 @@ export async function getPosts(req, res) {
     if (!limit) limit = 5;
     if (!offset) offset = 0;
 
-    const { rows } = await countRecentPosts(); // Corrigir chamada para countRecentPosts()
+    const { rows } = await countRecentPosts(); 
     const total = rows[0].countPosts;
     const currentUrl = req.route.path;
 
