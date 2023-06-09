@@ -47,6 +47,7 @@ export async function postUnlike(req, res) {
     res.status(500).send(err.message);
   }
 }
+
 export async function getPosts(req, res) {
   try {
     let { limit, offset } = req.query;
@@ -55,12 +56,15 @@ export async function getPosts(req, res) {
     if (!offset) offset = 0;
 
     const { rows } = await countRecentPosts(); // Corrigir chamada para countRecentPosts()
+    const totalPosts = await countPosts()
+    console.log(rows)
+    
     const total = rows[0].countPosts;
     const currentUrl = req.route.path;
 
     const next = offset + limit;
     const nextUrl =
-      next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null;
+      next < totalPosts ? `${currentUrl}?limit=${limit}&offset=${next}` : null;
 
     const previous = offset - limit < 0 ? null : offset - limit;
     const previousUrl =
@@ -69,6 +73,7 @@ export async function getPosts(req, res) {
         : null;
 
     const posts = await getPostsDB(limit, offset);
+
     res.status(200).send({
       previousUrl,
       nextUrl,
