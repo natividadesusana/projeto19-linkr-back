@@ -47,6 +47,7 @@ export async function postUnlike(req, res) {
     res.status(500).send(err.message);
   }
 }
+
 export async function getPosts(req, res) {
   try {
     let { limit, offset } = req.query;
@@ -55,6 +56,7 @@ export async function getPosts(req, res) {
     if (!offset) offset = 0;
 
     const { rows } = await countRecentPosts(); // Corrigir chamada para countRecentPosts()
+    
     const total = rows[0].countPosts;
     const currentUrl = req.route.path;
 

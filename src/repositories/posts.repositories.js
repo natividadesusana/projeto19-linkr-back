@@ -1,3 +1,4 @@
+import axios from "axios";
 import { db } from "../database/database.connection.js";
 import urlMetadata from "url-metadata";
 
@@ -7,21 +8,18 @@ export async function getLikedPost(userId, postId) {
     postId,
   ]);
 }
-
 export async function updateUnliked(postId, increment) {
   return db.query(
     'UPDATE posts SET "likeCount" = "likeCount" - $1 WHERE id = $2;',
     [increment, postId]
   );
 }
-
 export async function updateLiked(postId, increment) {
   return db.query(
     'UPDATE posts SET "likeCount" = "likeCount" + $1 WHERE id = $2;',
     [increment, postId]
   );
 }
-
 export async function getPostsDB(limit, offset) {
   const querystring = `
     SELECT JSONB_BUILD_OBJECT(
@@ -45,19 +43,19 @@ export async function getPostsDB(limit, offset) {
 
   const metadataPromises = list.map(async (obj) => {
     try {
-      const metadata = await urlMetadata(obj.post.url, {
-        requestHeaders: {
-          "User-Agent": "foo",
-          From: "bar@bar.com",
-        },
-      });
-      obj.post.urlDescr = metadata.description || "";
-      obj.post.urlImg = metadata.image || "";
-      obj.post.urlTitle = metadata.title || "";
+      const link = obj.post.url
+      await axios
+        .get(`https://jsonlink.io/api/extract?url=${link}`)
+        .then(res => {
 
+          const { title, description, images } = res.data
+          console.log(res.data)
+          obj.post.urlTitle = title || ''
+          obj.post.urlDescr = description || ''
+          obj.post.urlImg = images[0] || ''
+        })
     } catch (error) {
-      obj.post.urlDescr = "Descrição indisponível";
-      obj.post.urlImg = "";
+      return
     }
     return obj.post;
   });
@@ -83,21 +81,18 @@ export async function createPostsDB(
 
   return result.rows[0];
 }
-
 export function updatePostDB(id, url, description, userId) {
   return db.query(
     `UPDATE posts SET url = $1, description = $2 WHERE id = $3 AND "userId" = $4`,
     [url, description, id, userId]
   );
 }
-
 export function deletePostsDB(id, userId) {
   return db.query(`DELETE FROM posts WHERE id = $1 AND "userId" = $2`, [
     id,
     userId,
   ]);
 }
-
 export function getPostsHashtagsDB() {
   return db.query(
     `SELECT description as hashtags FROM posts WHERE description LIKE '%#%'`
@@ -113,7 +108,6 @@ export function countRecentPosts(lastUpdate) {
     [lastUpdate]
   );
 }
-
 export async function postRepostDB(postId, userId) {
   const result = await db.query(
     `INSERT INTO shares ("postId", "userId") VALUES ($1, $2) RETURNING *`,
@@ -122,7 +116,6 @@ export async function postRepostDB(postId, userId) {
 
   return result.rows[0];
 }
-
 export async function getRepostDB() {
   return db.query(
     'SELECT "postId", COUNT(*) AS reposts FROM shares GROUP BY "postId"'

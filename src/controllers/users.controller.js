@@ -1,18 +1,13 @@
-// import { getUserName } from '../repositories/users.repositories.js'
-
 import { db } from '../database/database.connection.js'
-
-import { checkTokenAndReturnUserId } from '../services/session.service.js'
+import { searchUserByInput } from '../services/users.service.js'
+import {checkTokenAndReturnUserId} from "../services/session.service.js"
 
 export async function getUsers(req, res) {
   try {
     const { userName } = req.params
-    const userID = await checkTokenAndReturnUserId(req)
-    const { rows } = await db.query(
-      `SELECT * FROM users WHERE "userName"::text LIKE $1`,
-      [`${userName}%`]
-    )
-    res.send(rows)
+    const userId = await checkTokenAndReturnUserId(req)
+    const result = await searchUserByInput(userName, userId)
+    res.send(result)
   } catch (error) {
     res.status(500).send(error.message)
   }
@@ -42,3 +37,4 @@ export async function getUserId(req, res) {
     res.status(500).send(error.message)
   }
 }
+
